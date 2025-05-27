@@ -1,0 +1,203 @@
+@page "/"
+@using Core.Entities
+@using Application.Services
+@inject ShelfLayoutService ShelfLayoutService
+@inject ISkuRepository SkuRepository
+
+<div class="container">
+    <h1>Shelf Layout Visualization</h1>
+
+    @if (_cabinets == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <div class="cabinets-container">
+            @foreach (var cabinet in _cabinets)
+            {
+                <div class="cabinet" style="width: @(cabinet.Size.Width * 4)px; height: @(cabinet.Size.Height * 2)px">
+                    <h3>Cabinet @cabinet.Number</h3>
+                    <div class="rows-container">
+                        @foreach (var row in cabinet.Rows)
+                        {
+                            <div class="row" style="height: @((row.Size?.Height ?? 40) * 2)px">
+                                <div class="row-number">Row @row.Number</div>
+                                <div class="lanes-container">
+                                    @foreach (var lane in row.Lanes)
+                                    {
+                                        string imageUrl = "";
+                                        <div class="lane">
+                                            <div class="lane-number">Lane @lane.Number</div>
+                                            <div class="skus-container">
+                                                @if (lane.JanCode != null)
+                                                {
+                                                    <div class="sku-item" @onclick="() => SelectSku(lane.JanCode!)">
+                                                        @if (_skuImages.TryGetValue(lane.JanCode, out imageUrl))
+                                                        {
+                                                            <img src="@imageUrl" alt="@lane.JanCode" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="loading">Loading...</div>
+                                                        }
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .cabinets-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 100px;
+        padding: 20px;
+    }
+
+    .cabinet {
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        padding: 20px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        flex: 0 0 auto;
+    }
+
+    .rows-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .row {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 10px;
+        position: relative;
+    }
+
+    .row-number {
+        position: absolute;
+        top: -25px;
+        left: 5px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .lanes-container {
+        display: flex;
+        gap: 20px;
+        height: 100%;
+    }
+
+    /*.lane {*/
+    /*    background-color: #f8f8f8;*/
+    /*    border: 1px solid #eee;*/
+    /*    padding: 10px;*/
+    /*    position: relative;*/
+    /*    min-height: 120px;*/
+    /*}*/
+
+    .lane-number {
+        position: absolute;
+        top: -20px;
+        left: 5px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .skus-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding-top: 25px;
+    }
+
+    .sku-item {
+        width: 60px;
+        height: 60px;
+        border: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .sku-item:hover {
+        transform: scale(1.1);
+    }
+
+    .sku-item img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .loading {
+        font-size: 12px;
+        color: #666;
+    }
+</style>
+
+@code {
+    private IEnumerable<Cabinet>? _cabinets;
+    private Dictionary<string, string> _skuImages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _cabinets = await ShelfLayoutService.GetAllCabinetsAsync();
+        await LoadAllSkuImages();
+    }
+
+    private async Task LoadAllSkuImages()
+    {
+        if (_cabinets == null) return;
+
+        var tasks = new List<Task>();
+        foreach (var cabinet in _cabinets)
+        {
+            foreach (var row in cabinet.Rows)
+            {
+                foreach (var lane in row.Lanes)
+                {
+                    if (lane.JanCode != null && !_skuImages.ContainsKey(lane.JanCode))
+                    {
+                        tasks.Add(LoadSkuImage(lane.JanCode));
+                    }
+                }
+            }
+        }
+
+        await Task.WhenAll(tasks);
+        StateHasChanged();
+    }
+
+    private async Task LoadSkuImage(string janCode)
+    {
+        var sku = await SkuRepository.GetByJanCodeAsync(janCode);
+        if (sku != null)
+        {
+            _skuImages[janCode] = sku.ImageUrl ?? "images/placeholder.png";
+        }
+        else
+        {
+            _skuImages[janCode] = "images/placeholder.png";
+        }
+    }
+
+    private void SelectSku(string janCode)
+    {
+        // TODO: Implement SKU selection logic
+        Console.WriteLine($"Selected SKU: {janCode}");
+    }
+} 

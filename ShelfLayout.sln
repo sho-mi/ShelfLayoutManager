@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CF72C185-EF66-4871-B990-CD53F32D4B49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShelfLayout.Core", "src\ShelfLayout.Core\ShelfLayout.Core.csproj", "{A87B087C-3C01-49B3-9967-C6AF99148B7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShelfLayout.Infrastructure", "src\ShelfLayout.Infrastructure\ShelfLayout.Infrastructure.csproj", "{0CEC253F-7CE8-434B-A5C3-B8D3F3F37384}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShelfLayout.Application", "src\ShelfLayout.Application\ShelfLayout.Application.csproj", "{D4854A54-B9CA-4AFD-B790-F84F1A3BF489}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShelfLayout.Web", "src\ShelfLayout.Web\ShelfLayout.Web.csproj", "{265CA1C7-0C2D-4D68-96AA-C1F4EDE344FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{141D7F95-4D9D-4C47-BA5A-049B9DC7EDD6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShelfLayout.Core.Tests", "tests\ShelfLayout.Core.Tests\ShelfLayout.Core.Tests.csproj", "{B6D966F3-E29C-4CF1-A6C9-50347E019C1E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A87B087C-3C01-49B3-9967-C6AF99148B7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A87B087C-3C01-49B3-9967-C6AF99148B7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A87B087C-3C01-49B3-9967-C6AF99148B7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A87B087C-3C01-49B3-9967-C6AF99148B7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CEC253F-7CE8-434B-A5C3-B8D3F3F37384}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CEC253F-7CE8-434B-A5C3-B8D3F3F37384}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CEC253F-7CE8-434B-A5C3-B8D3F3F37384}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CEC253F-7CE8-434B-A5C3-B8D3F3F37384}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4854A54-B9CA-4AFD-B790-F84F1A3BF489}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4854A54-B9CA-4AFD-B790-F84F1A3BF489}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4854A54-B9CA-4AFD-B790-F84F1A3BF489}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4854A54-B9CA-4AFD-B790-F84F1A3BF489}.Release|Any CPU.Build.0 = Release|Any CPU
+		{265CA1C7-0C2D-4D68-96AA-C1F4EDE344FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{265CA1C7-0C2D-4D68-96AA-C1F4EDE344FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{265CA1C7-0C2D-4D68-96AA-C1F4EDE344FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{265CA1C7-0C2D-4D68-96AA-C1F4EDE344FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6D966F3-E29C-4CF1-A6C9-50347E019C1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6D966F3-E29C-4CF1-A6C9-50347E019C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6D966F3-E29C-4CF1-A6C9-50347E019C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6D966F3-E29C-4CF1-A6C9-50347E019C1E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A87B087C-3C01-49B3-9967-C6AF99148B7F} = {CF72C185-EF66-4871-B990-CD53F32D4B49}
+		{0CEC253F-7CE8-434B-A5C3-B8D3F3F37384} = {CF72C185-EF66-4871-B990-CD53F32D4B49}
+		{D4854A54-B9CA-4AFD-B790-F84F1A3BF489} = {CF72C185-EF66-4871-B990-CD53F32D4B49}
+		{265CA1C7-0C2D-4D68-96AA-C1F4EDE344FD} = {CF72C185-EF66-4871-B990-CD53F32D4B49}
+		{B6D966F3-E29C-4CF1-A6C9-50347E019C1E} = {141D7F95-4D9D-4C47-BA5A-049B9DC7EDD6}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,145 @@
+@page "/sku-management"
+@using Core.Entities
+@using Core.Interfaces
+@inject ISkuRepository SkuRepository
+
+<div class="container">
+    <h1>SKU Management</h1>
+
+    <div class="add-sku-form">
+        <h2>Add New SKU</h2>
+        <div class="form-group">
+            <label for="janCode">JanCode:</label>
+            <input type="text" id="janCode" @bind="newSku.JanCode" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" @bind="newSku.Name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="size">Size (ml):</label>
+            <input type="number" id="size" @bind="newSku.Size" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Product Size:</label>
+            <div class="size-inputs">
+                <input type="number" @bind="newSku.Width" placeholder="Width" class="form-control" />
+                <input type="number" @bind="newSku.Depth" placeholder="Depth" class="form-control" />
+                <input type="number" @bind="newSku.Height" placeholder="Height" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="shapeType">Shape Type:</label>
+            <select id="shapeType" @bind="newSku.ShapeType" class="form-control">
+                <option value="Can">Can</option>
+                <option value="Bottle">Bottle</option>
+                <option value="Box">Box</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="imageUrl">Image URL:</label>
+            <input type="text" id="imageUrl" @bind="newSku.ImageUrl" class="form-control" />
+        </div>
+        <button class="btn btn-primary" @onclick="AddSku">Add SKU</button>
+    </div>
+
+    <div class="sku-list">
+        <h2>Existing SKUs</h2>
+        @if (_skus == null)
+        {
+            <p>Loading...</p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>JanCode</th>
+                        <th>Name</th>
+                        <th>Drink Size</th>
+                        <th>Shape Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sku in _skus)
+                    {
+                        <tr>
+                            <td>@sku.JanCode</td>
+                            <td>@sku.Name</td>
+                            <td>@sku.DrinkSize</td>
+                            <td>@sku.ShapeType</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteSku(sku.JanCode)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+@code {
+    private IEnumerable<Sku>? _skus;
+    private Sku newSku = new Sku
+    {
+        JanCode = "",
+        Name = "",
+        Size = 0,
+        Width = 0,
+        Depth = 0,
+        Height = 0,
+        ShapeType = "Can",
+        ImageUrl = "",
+        TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSkus();
+    }
+
+    private async Task LoadSkus()
+    {
+        _skus = await SkuRepository.GetAllAsync();
+    }
+
+    private async Task AddSku()
+    {
+        try
+        {
+            await SkuRepository.AddAsync(newSku);
+            newSku = new Sku
+            {
+                JanCode = "",
+                Name = "",
+                Size = 0,
+                Width = 0,
+                Depth = 0,
+                Height = 0,
+                ShapeType = "Can",
+                ImageUrl = "",
+                TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            };
+            await LoadSkus();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error adding SKU: {ex.Message}");
+        }
+    }
+
+    private async Task DeleteSku(string janCode)
+    {
+        try
+        {
+            await SkuRepository.DeleteAsync(janCode);
+            await LoadSkus();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting SKU: {ex.Message}");
+        }
+    }
+} 

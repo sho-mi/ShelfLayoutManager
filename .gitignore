@@ -1,0 +1,58 @@
+## Build results
+bin/
+obj/
+out/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio Code
+.vscode/
+.history/
+
+## ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+## .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+*.nuspec
+*.psmdcp
+
+## Logs
+*.log
+
+## Publish
+wwwroot/dist/
+wwwroot/node_modules/
+publish/
+*.publish.xml
+
+## Others
+*.dbmdl
+*.bak
+*.sql
+*.pdb
+
+# Rider
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
