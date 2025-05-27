@@ -1,6 +1,4 @@
 @page "/"
-@using Core.Entities
-@using Application.Services
 @inject ShelfLayoutService ShelfLayoutService
 @inject ISkuRepository SkuRepository
 
@@ -26,16 +24,15 @@
                                 <div class="lanes-container">
                                     @foreach (var lane in row.Lanes)
                                     {
-                                        string imageUrl = "";
                                         <div class="lane">
-                                            <div class="lane-number">Lane @lane.Number</div>
                                             <div class="skus-container">
                                                 @if (lane.JanCode != null)
                                                 {
                                                     <div class="sku-item" @onclick="() => SelectSku(lane.JanCode!)">
-                                                        @if (_skuImages.TryGetValue(lane.JanCode, out imageUrl))
+                                                        @if (_skuImages.TryGetValue(lane.JanCode, out var imageUrl))
                                                         {
                                                             <img src="@imageUrl" alt="@lane.JanCode" />
+                                                            <div class="quantity-badge">@lane.Quantity</div>
                                                         }
                                                         else
                                                         {
@@ -44,6 +41,7 @@
                                                     </div>
                                                 }
                                             </div>
+                                            <div class="lane-number">Lane @lane.Number</div>
                                         </div>
                                     }
                                 </div>
@@ -87,39 +85,28 @@
 
     .row-number {
         position: absolute;
-        top: -25px;
+        top: -18px;
         left: 5px;
         font-size: 14px;
         color: #666;
+    }
+    
+    .lane-number {
+        font-size: 10px;
     }
 
     .lanes-container {
         display: flex;
         gap: 20px;
         height: 100%;
-    }
-
-    /*.lane {*/
-    /*    background-color: #f8f8f8;*/
-    /*    border: 1px solid #eee;*/
-    /*    padding: 10px;*/
-    /*    position: relative;*/
-    /*    min-height: 120px;*/
-    /*}*/
-
-    .lane-number {
-        position: absolute;
-        top: -20px;
-        left: 5px;
-        font-size: 14px;
-        color: #666;
+        flex-direction: row;
     }
 
     .skus-container {
         display: flex;
         flex-wrap: wrap;
         gap: 20px;
-        padding-top: 25px;
+        padding-top: 2px;
     }
 
     .sku-item {
@@ -131,6 +118,7 @@
         justify-content: center;
         cursor: pointer;
         transition: transform 0.2s;
+        position: relative;
     }
 
     .sku-item:hover {
@@ -146,6 +134,23 @@
     .loading {
         font-size: 12px;
         color: #666;
+    }
+
+    .quantity-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: #ff4444;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 </style>
 
