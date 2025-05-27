@@ -61,13 +61,13 @@ dotnet test
 
 ## Development Time Breakdown
 
-- Project Setup and Architecture: 2 hours
-- Core Domain Implementation: 3 hours
-- Infrastructure Layer: 2 hours
-- Application Layer: 3 hours
-- UI Implementation: 4 hours
-- Testing: 3 hours
-- Documentation: 1 hour
+- Project Setup and Architecture: -- hours
+- Core Domain Implementation: -- hours
+- Infrastructure Layer: -- hours
+- Application Layer: -- hours
+- UI Implementation: -- hours
+- Testing: -- hours
+- Documentation: -- hour
 - Total: ~18 hours
 
 ## Future Improvements
