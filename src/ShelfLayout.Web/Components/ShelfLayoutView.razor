@@ -1,14 +1,11 @@
 @page "/"
 @namespace ShelfLayout.Web.Components
-@using ShelfLayout.Core.Entities
-@using ShelfLayout.Core.Interfaces
-@using ShelfLayout.Web.Services
 @using Microsoft.Extensions.Logging
 @implements IAsyncDisposable
 
-@inject ShelfLayout.Web.Services.ShelfLayoutService ShelfLayoutService
+@inject ShelfLayoutService ShelfLayoutService
 @inject ISkuRepository SkuRepository
-@inject ShelfLayout.Web.Services.ShelfLayoutHubService HubService
+@inject ShelfLayoutHubService HubService
 @inject ILogger<ShelfLayoutView> _logger
 @inject IJSRuntime _jsRuntime
 
@@ -38,78 +35,59 @@
         </div>
     }
 
-    @if (_cabinets != null)
+    @if (_cabinets != null && _cabinets.Count > 0)
     {
-        foreach (var cabinet in _cabinets)
-        {
-            <div class="cabinet" style="left: @(cabinet.Position.X)px; top: @(cabinet.Position.Y)px;">
-                <div class="cabinet-header">
-                    <h3>Cabinet @cabinet.Number</h3>
-                    <div class="cabinet-actions">
-                        <button class="btn btn-sm btn-primary" @onclick="() => ShowAddRowForm(cabinet.Number)">Add Row</button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteCabinet(cabinet.Number)">Delete</button>
-                    </div>
-                </div>
-
-                @if (_showAddRowForm && _selectedCabinet == cabinet.Number)
+        <div class="cabinet-carousel-controls">
+            <button class="carousel-arrow" @onclick="() => ChangeCabinet(-1)" disabled="@(currentCabinetIndex == 0)">&#8592;</button>
+            <span class="carousel-label">Cabinet @(currentCabinetIndex + 1) of @_cabinets.Count</span>
+            <button class="carousel-arrow" @onclick="() => ChangeCabinet(1)" disabled="@(currentCabinetIndex == _cabinets.Count - 1)">&#8594;</button>
+        </div>
+        <div class="cabinet-carousel-container">
+            @{
+                var cabinet = _cabinets[currentCabinetIndex];
+            }
+            <div class="cabinet-visual">
+                <div class="cabinet-label">Cabinet</div>
+                @for (int rowIdx = 0; rowIdx < cabinet.Rows.Count; rowIdx++)
                 {
-                    <div class="add-row-form">
-                        <div class="form-group">
-                            <label for="rowNumber">Row Number:</label>
-                            <input type="number" id="rowNumber" @bind="newRow.Number" class="form-control" />
-                        </div>
-                        <div class="form-group">
-                            <label for="positionZ">Position Z:</label>
-                            <input type="number" id="positionZ" @bind="newRow.PositionZ" class="form-control" />
-                        </div>
-                        <button class="btn btn-primary" @onclick="() => AddRow(cabinet.Number)">Add</button>
-                        <button class="btn btn-secondary" @onclick="CancelAddRow">Cancel</button>
-                    </div>
-                }
-
-                @foreach (var row in cabinet.Rows)
-                {
-                    <div class="row" style="top: @(row.PositionZ)px;">
-                        <div class="row-header">
-                            <h4>Row @row.Number</h4>
-                            <button class="btn btn-sm btn-danger" @onclick="() => RemoveRow(cabinet.Number, row.Number)">Remove</button>
-                        </div>
-                        @foreach (var lane in row.Lanes)
+                    var row = cabinet.Rows[rowIdx];
+                    <div class="row-visual">
+                        @if (rowIdx == 0)
                         {
-                            <div class="lane" style="left: @(lane.PositionX)px;">
-                                @if (!string.IsNullOrEmpty(lane.JanCode))
-                                {
-                                    var sku = _skuImages.GetValueOrDefault(lane.JanCode);
-                                    if (sku != null)
-                                    {
-                                        <img src="@sku.ImageUrl" alt="@sku.Name" />
-                                        <button @onclick="() => RemoveLane(cabinet.Number, row.Number, lane.Number)">Remove</button>
-                                    }
-                                }
-                                else if (_selectedLane == (cabinet.Number, row.Number, lane.Number))
-                                {
-                                    <div class="sku-form">
-                                        <select @bind="_newSku.JanCode">
-                                            <option value="">Select SKU</option>
-                                            @foreach (var sku in _skuImages.Values)
-                                            {
-                                                <option value="@sku.JanCode">@sku.Name</option>
-                                            }
-                                        </select>
-                                        <button @onclick="() => AddSku(cabinet.Number, row.Number, lane.Number)">Add</button>
-                                        <button @onclick="CancelAddSku">Cancel</button>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <button @onclick="() => ShowAddSkuForm(cabinet.Number, row.Number, lane.Number)">Add</button>
-                                }
-                            </div>
+                            <div class="row-label">Row</div>
                         }
+                        <div class="lanes-visual">
+                            @foreach (var lane in row.Lanes)
+                            {
+                                <div class="lane-visual">
+                                    @if (!string.IsNullOrEmpty(lane.JanCode))
+                                    {
+                                        var sku = _skuImages.GetValueOrDefault(lane.JanCode);
+                                        <div class="sku-wrapper">
+                                            <div class="quantity-badge">@lane.Quantity</div>
+                                            @if (sku != null)
+                                            {
+                                                <img src="@sku.ImageUrl" alt="@sku.Name" class="sku-img" />
+                                            }
+                                            else
+                                            {
+                                                <div class="sku-img sku-placeholder"></div>
+                                            }
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="sku-wrapper">
+                                            <div class="sku-img sku-placeholder"></div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
                     </div>
                 }
             </div>
-        }
+        </div>
     }
 </div>
 
@@ -153,6 +131,7 @@
         ImageUrl = "",
         TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
     };
+    private int currentCabinetIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -389,6 +368,15 @@
         {
             Console.WriteLine($"Error removing lane: {ex.Message}");
         }
+    }
+
+    private void ChangeCabinet(int delta)
+    {
+        if (_cabinets == null || _cabinets.Count == 0) return;
+        var newIndex = currentCabinetIndex + delta;
+        if (newIndex < 0) newIndex = 0;
+        if (newIndex >= _cabinets.Count) newIndex = _cabinets.Count - 1;
+        currentCabinetIndex = newIndex;
     }
 
     public async ValueTask DisposeAsync()

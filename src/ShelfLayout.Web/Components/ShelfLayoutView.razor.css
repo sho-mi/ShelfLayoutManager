@@ -98,51 +98,68 @@
     margin-bottom: 10px;
 }
 
-.lanes-container {
+.lanes-visual {
     display: flex;
-    gap: 10px;
+    flex-direction: row;
+    gap: 16px;
     flex: 1;
+    justify-content: flex-start;
+    align-items: flex-end;
 }
 
-.lane {
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 5px;
+.sku-wrapper {
     position: relative;
-}
-
-.lane-number {
-    font-size: 0.8em;
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.skus-container {
+    width: 40px;
+    height: 48px;
     display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
 }
 
-.sku-item {
+.quantity-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 0.8em;
+    font-weight: bold;
+    z-index: 2;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    min-width: 24px;
+    text-align: center;
+}
+
+.sku-img {
     width: 40px;
     height: 40px;
-    border: 1px solid #ddd;
+    object-fit: contain;
+    display: block;
     border-radius: 4px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.2s;
+    background: #fff;
 }
 
-.sku-item:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.lane-visual {
+    border: 2px solid #222;
+    border-radius: 8px;
+    width: 48px;
+    height: 70px;
+    margin: 0 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    background: #fafafa;
 }
 
-.sku-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.sku-placeholder {
+    background: #eee;
+    border: 1px dashed #aaa;
 }
 
 .btn {
@@ -194,4 +211,119 @@
 
 .sku-form select {
     flex: 1;
+}
+
+.cabinet-visual {
+    border: 2px solid #1abc1a;
+    border-radius: 18px;
+    padding: 32px 24px 24px 24px;
+    margin: 32px auto;
+    position: relative;
+    background: #fff;
+    min-width: 350px;
+    max-width: 500px;
+}
+
+.cabinet-label {
+    color: #1abc1a;
+    font-size: 1.3em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.row-visual {
+    border: 2px solid #e74c3c;
+    border-radius: 14px;
+    margin: 18px 0 18px 0;
+    padding: 18px 18px 12px 12px;
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    min-height: 70px;
+}
+
+.row-label {
+    color: #e74c3c;
+    font-size: 1.1em;
+    font-weight: bold;
+    position: absolute;
+    left: -38px;
+    top: 10px;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    letter-spacing: 2px;
+}
+
+.cabinet-carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    gap: 8px;
+}
+.carousel-arrow {
+    background: none;
+    border: none;
+    font-size: 2em;
+    cursor: pointer;
+    margin: 0 16px;
+    color: #1abc1a;
+    transition: color 0.2s;
+}
+.carousel-arrow:disabled {
+    color: #ccc;
+    cursor: default;
+}
+.carousel-label {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #333;
+}
+.cabinet-carousel-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: auto;
+    min-height: 350px;
+}
+@media (max-width: 600px) {
+    .cabinet-carousel-container {
+        min-height: 220px;
+    }
+    .carousel-arrow {
+        font-size: 1.4em;
+        margin: 0 6px;
+    }
+    .carousel-label {
+        font-size: 1em;
+    }
+    .cabinet-visual {
+        min-width: 220px;
+        max-width: 98vw;
+        padding: 12px 4px 12px 4px;
+    }
+    .row-visual {
+        padding: 10px 10px 8px 28px;
+        min-height: 48px;
+    }
+    .lane-visual {
+        width: 32px;
+        height: 48px;
+    }
+    .sku-wrapper {
+        width: 28px;
+        height: 32px;
+    }
+    .sku-img {
+        width: 28px;
+        height: 28px;
+    }
+    .quantity-badge {
+        font-size: 0.7em;
+        padding: 1px 5px;
+        top: -8px;
+        min-width: 16px;
+    }
 } 
