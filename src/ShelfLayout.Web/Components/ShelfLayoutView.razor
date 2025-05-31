@@ -56,31 +56,35 @@
                         {
                             <div class="row-label">Row</div>
                         }
+                        <div class="row-number-container">
+                            <div class="row-number">Row @row.Number</div>
+                            <button class="btn btn-danger btn-sm remove-row-btn" @onclick="() => RemoveRow(cabinet.Number, row.Number)">Remove Row</button>
+                        </div>
                         <div class="lanes-visual">
                             @foreach (var lane in row.Lanes)
                             {
                                 <div class="lane-visual">
-                                    @if (!string.IsNullOrEmpty(lane.JanCode))
-                                    {
-                                        var sku = _skuImages.GetValueOrDefault(lane.JanCode);
-                                        <div class="sku-wrapper">
-                                            <div class="quantity-badge">@lane.Quantity</div>
-                                            @if (sku != null)
+                                    <div class="lane-number">Lane @lane.Number</div>
+                                    <div class="sku-wrapper">
+                                        <div class="quantity-badge">@lane.Quantity</div>
+                                        @if (!string.IsNullOrEmpty(lane.JanCode))
+                                        {
+                                            var sku = _skuImages.GetValueOrDefault(lane.JanCode);
+                                            @if (sku != null && !string.IsNullOrEmpty(sku.ImageUrl))
                                             {
-                                                <img src="@sku.ImageUrl" alt="@sku.Name" class="sku-img" />
+                                                <img src="@sku.ImageUrl" alt="@sku.Name" class="sku-img" onerror="this.src='/images/placeholder.png'" />
                                             }
                                             else
                                             {
-                                                <div class="sku-img sku-placeholder"></div>
+                                                <img src="/images/placeholder.png" alt="Placeholder" class="sku-img" />
                                             }
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="sku-wrapper">
-                                            <div class="sku-img sku-placeholder"></div>
-                                        </div>
-                                    }
+                                        }
+                                        else
+                                        {
+                                            <img src="/images/placeholder.png" alt="Placeholder" class="sku-img" />
+                                        }
+                                    </div>
+                                    <button class="btn btn-danger btn-sm remove-lane-btn" @onclick="() => RemoveLane(cabinet.Number, row.Number, lane.Number)">Remove</button>
                                 </div>
                             }
                         </div>
@@ -90,6 +94,142 @@
         </div>
     }
 </div>
+
+<style>
+    .cabinet-visual {
+        padding: 20px;
+        border: 2px solid #2ecc40;
+        border-radius: 16px;
+        margin: 20px 0;
+        position: relative;
+        width: 100%;
+        max-width: 2600px;
+        min-width: 900px;
+        background: #fff;
+    }
+    .cabinet-label {
+        color: #2ecc40;
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 18px;
+    }
+    .row-visual {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        border: 2px solid #ff4136;
+        border-radius: 14px;
+        padding: 28px 0 16px 0;
+        position: relative;
+        background: #fff;
+        min-width: 800px;
+        max-width: 2400px;
+        width: 100%;
+    }
+    .row-label {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        color: #ff4136;
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin-right: 10px;
+        margin-left: 2px;
+        align-self: flex-start;
+    }
+    .row-number-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 20px;
+        min-width: 60px;
+    }
+    .row-number {
+        font-weight: bold;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+        text-align: center;
+        white-space: nowrap;
+        color: #333;
+    }
+    .remove-row-btn {
+        margin: 0;
+        width: 100%;
+        font-size: 0.8rem;
+        padding: 2px 0;
+    }
+    .lanes-visual {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 24px;
+        width: 100%;
+        min-width: 700px;
+        max-width: 2200px;
+        padding-bottom: 8px;
+    }
+    .lane-visual {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 80px;
+        max-width: 90px;
+        padding: 0 4px;
+        position: relative;
+        background: #fff;
+    }
+    .lane-number {
+        font-weight: bold;
+        font-size: 0.85rem;
+        margin-bottom: 4px;
+        margin-top: 8px;
+        text-align: center;
+        white-space: nowrap;
+        color: #222;
+        background: #e6f0fa;
+        width: 100%;
+        border-radius: 6px;
+        padding: 2px 0;
+        border: 1px solid #0074d9;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .sku-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 2px;
+        margin-bottom: 8px;
+        width: 100%;
+    }
+    .sku-img {
+        width: 40px;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        background: #fafafa;
+        margin-bottom: 2px;
+    }
+    .quantity-badge {
+        background: #222;
+        color: #fff;
+        font-size: 0.85rem;
+        border-radius: 10px;
+        padding: 2px 8px;
+        margin-bottom: 4px;
+        font-weight: bold;
+        border: 1px solid #ff4136;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+    }
+    .remove-lane-btn {
+        margin-bottom: 0;
+        margin-top: 4px;
+        font-size: 0.7rem;
+        width: 80%;
+        padding: 2px 0;
+    }
+</style>
 
 @code {
     private List<Cabinet>? _cabinets;
