@@ -9,11 +9,13 @@ This application allows operations team members to:
 - Add new SKU drinks to shelves
 - Move existing SKU drinks between positions
 - Remove SKU drinks from shelves
+- Real-time updates across multiple browser tabs/windows
 
 ## Technical Stack
 
 - .NET 8.0
 - Blazor WebAssembly
+- SignalR for real-time communication
 - System.Reactive for reactive programming
 - xUnit for unit testing
 - Clean Architecture principles
@@ -33,6 +35,21 @@ ShelfLayout/
     ├── ShelfLayout.Application.Tests/
     └── ShelfLayout.Web.Tests/
 ```
+
+## Features
+
+### Real-time Updates
+The application uses SignalR to provide real-time updates across multiple browser tabs/windows. When changes are made to the shelf layout:
+- All connected clients are notified immediately
+- The UI is automatically refreshed to reflect the changes
+- No manual refresh is required
+
+### Reactive Programming
+The application implements reactive programming patterns to handle:
+- Real-time data synchronization
+- Automatic UI updates
+- Event-driven architecture
+- Efficient state management
 
 ## Getting Started
 
@@ -66,9 +83,10 @@ dotnet test
 - Infrastructure Layer: -- hours
 - Application Layer: -- hours
 - UI Implementation: -- hours
+- Real-time Features: -- hours
 - Testing: -- hours
 - Documentation: -- hour
-- Total: ~18 hours
+- Total: ~20 hours
 
 ## Future Improvements
 
@@ -78,15 +96,17 @@ dotnet test
 3. Implement data persistence with a proper database
 4. Add input validation and error messages
 5. Implement proper state management
+6. Add real-time collaboration features
+7. Implement conflict resolution for concurrent edits
 
 ### Nice to Have
 1. Add drag-and-drop functionality for SKU placement
-2. Implement real-time collaboration features
-3. Add export/import functionality for shelf layouts
-4. Implement undo/redo functionality
-5. Add performance optimizations for large datasets
-6. Implement responsive design for mobile devices
-7. Add analytics and reporting features
+2. Add export/import functionality for shelf layouts
+3. Implement undo/redo functionality
+4. Add performance optimizations for large datasets
+5. Implement responsive design for mobile devices
+6. Add analytics and reporting features
+7. Implement offline support with sync capabilities
 
 ## Contributing
 
