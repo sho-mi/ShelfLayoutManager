@@ -1,7 +1,10 @@
 @page "/sku-management"
 @using Core.Entities
 @using Core.Interfaces
+@using ShelfLayout.Web.Services
 @inject ISkuRepository SkuRepository
+@inject ShelfLayoutService ShelfLayoutService
+@implements IDisposable
 
 <div class="container">
     <h1>SKU Management</h1>
@@ -103,6 +106,7 @@
     private async Task LoadSkus()
     {
         _skus = await SkuRepository.GetAllAsync();
+        StateHasChanged();
     }
 
     private async Task AddSku()
@@ -141,5 +145,10 @@
         {
             Console.WriteLine($"Error deleting SKU: {ex.Message}");
         }
+    }
+
+    public void Dispose()
+    {
+        // Cleanup if needed
     }
 } 

@@ -4,21 +4,31 @@ using System.Globalization;
 using ShelfLayout.Core.Entities;
 using ShelfLayout.Core.Interfaces;
 using System.Net.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Http;
+using System.Net.Http.Json;
 
 namespace ShelfLayout.Infrastructure.Repositories
 {
     public class SkuCsvRepository : ISkuRepository
     {
-        private readonly string _filePath;
         private readonly HttpClient _httpClient;
+        private readonly IMemoryCache _cache;
+        private readonly ILogger<SkuCsvRepository> _logger;
+        private const string CACHE_KEY = "sku_data";
+        private const int CACHE_DURATION_SECONDS = 5;
         private List<Sku> _skus;
         private bool _isInitialized;
 
-        public SkuCsvRepository(HttpClient httpClient)
+        public SkuCsvRepository(IHttpClientFactory httpClientFactory, IMemoryCache cache, ILogger<SkuCsvRepository> logger)
         {
-            _filePath = "data/sku.csv";
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("ShelfLayoutAPI");
+            _cache = cache;
+            _logger = logger;
             _skus = new List<Sku>();
+            _httpClient.BaseAddress = new Uri("https://localhost:5237/");
+            _httpClient.DefaultRequestHeaders.Add("Accept", "text/csv");
         }
 
         private async Task EnsureInitializedAsync()
@@ -32,57 +42,80 @@ namespace ShelfLayout.Infrastructure.Repositories
 
         private async Task LoadDataAsync()
         {
-            
             try
             {
-                var response = await _httpClient.GetAsync(_filePath);
-                response.EnsureSuccessStatusCode();
-                var csvContent = await response.Content.ReadAsStringAsync();
-                
-                var lines = csvContent.Split('\n').Skip(1); // Skip header
-                _skus = new List<Sku>();
-                
-                foreach (var line in lines)
+                // Try to get from cache first if available
+                if (_cache != null && _cache.TryGetValue(CACHE_KEY, out List<Sku>? cachedSkus) && cachedSkus != null)
                 {
-                    if (string.IsNullOrWhiteSpace(line)) continue;
-                    
-                    var values = line.Split(',');
-                    if (values.Length < 9) continue;
-
-                    var sku = new Sku
-                    {
-                        JanCode = values[0].Trim(),
-                        Name = values[1].Trim(),
-                        Width = decimal.Parse(values[2].Trim()),
-                        Depth = decimal.Parse(values[3].Trim()),
-                        Height = decimal.Parse(values[4].Trim()),
-                        ImageUrl = values[5].Trim(),
-                        Size = int.Parse(values[6].Trim()),
-                        TimeStamp = long.Parse(values[7].Trim()),
-                        ShapeType = values[8].Trim()
-                    };
-                    
-                    _skus.Add(sku);
+                    _logger.LogInformation("Returning SKU data from cache");
+                    _skus = cachedSkus;
+                    return;
                 }
+
+                _logger.LogInformation("Attempting to load SKU data from api/shelflayout/sku-data");
+                var response = await _httpClient.GetAsync("api/shelflayout/sku-data");
                 
-                if (_skus.Count > 0)
+                if (!response.IsSuccessStatusCode)
                 {
-                    var firstSku = _skus[0];
+                    _logger.LogError("Failed to load SKU data. Status code: {StatusCode}", response.StatusCode);
+                    _skus = new List<Sku>();
+                    return;
+                }
+
+                var csvContent = await response.Content.ReadAsStringAsync();
+                _logger.LogInformation("Successfully read {Length} characters from file", csvContent.Length);
+
+                using var reader = new StringReader(csvContent);
+                using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    HasHeaderRecord = true,
+                    MissingFieldFound = null
+                });
+
+                _skus = csv.GetRecords<Sku>().ToList();
+                _logger.LogInformation("Successfully loaded {Count} SKUs", _skus.Count);
+
+                // Cache the data if cache is available
+                if (_cache != null)
+                {
+                    var cacheOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(CACHE_DURATION_SECONDS));
+                    _cache.Set(CACHE_KEY, _skus, cacheOptions);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading SKUs: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                _logger.LogError(ex, "Error loading SKU data: {Message}", ex.Message);
                 _skus = new List<Sku>();
             }
         }
 
         private async Task SaveDataAsync()
         {
-            // Note: In Blazor WebAssembly, we can't write to the file system directly
-            // This would need to be handled by a server-side API
-            Console.WriteLine("Warning: SaveDataAsync is not implemented in WebAssembly");
+            try
+            {
+                _logger.LogInformation("Attempting to save SKU data");
+                var response = await _httpClient.PostAsJsonAsync("api/shelflayout/save-skus", _skus);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = $"Failed to save SKU data. Status code: {response.StatusCode}";
+                    _logger.LogError(error);
+                    throw new Exception(error);
+                }
+                
+                _logger.LogInformation("Successfully saved SKU data");
+
+                // Update cache after successful save
+                var cacheOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(CACHE_DURATION_SECONDS));
+                _cache.Set(CACHE_KEY, _skus, cacheOptions);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving SKU data");
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Sku>> GetAllAsync()
@@ -125,14 +158,12 @@ namespace ShelfLayout.Infrastructure.Repositories
         public async Task DeleteAsync(string janCode)
         {
             await EnsureInitializedAsync();
-            var index = _skus.FindIndex(s => s.JanCode == janCode);
-            if (index == -1)
+            var sku = _skus.FirstOrDefault(s => s.JanCode == janCode);
+            if (sku != null)
             {
-                throw new InvalidOperationException($"SKU with JAN code {janCode} not found.");
+                _skus.Remove(sku);
+                await SaveDataAsync();
             }
-
-            _skus.RemoveAt(index);
-            await SaveDataAsync();
         }
     }
 

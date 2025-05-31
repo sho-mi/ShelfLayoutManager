@@ -4,33 +4,25 @@ namespace ShelfLayout.Core.Entities
 {
     public class Cabinet
     {
-        public required int Number { get; set; }
-        public required List<Row> Rows { get; set; }
-        public required Position Position { get; set; }
-        public required Size Size { get; set; }
+        public int Number { get; set; }
+        public List<Row> Rows { get; set; } = new List<Row>();
+        public Position Position { get; set; } = new Position();
+        public Size Size { get; set; } = new Size();
     }
 
     public class Row
     {
-        public required int Number { get; set; }
-        public required List<Lane> Lanes { get; set; }
-        public required decimal PositionZ { get; set; }
+        public int Number { get; set; }
+        public List<Lane> Lanes { get; set; } = new List<Lane>();
+        public decimal PositionZ { get; set; }
         public Size? Size { get; set; }
-    }
-
-    public class Lane
-    {
-        public required int Number { get; set; }
-        public string? JanCode { get; set; }
-        public required int Quantity { get; set; }
-        public required decimal PositionX { get; set; }
     }
 
     public class Position
     {
-        public required decimal X { get; set; }
-        public required decimal Y { get; set; }
-        public required decimal Z { get; set; }
+        public decimal X { get; set; }
+        public decimal Y { get; set; }
+        public decimal Z { get; set; }
     }
 
     public class Size

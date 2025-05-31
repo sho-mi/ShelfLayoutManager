@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{141D7F95
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShelfLayout.Core.Tests", "tests\ShelfLayout.Core.Tests\ShelfLayout.Core.Tests.csproj", "{B6D966F3-E29C-4CF1-A6C9-50347E019C1E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShelfLayout.Server", "ShelfLayout.Server\ShelfLayout.Server.csproj", "{50094EA7-0003-4090-BE7C-CA0637982C57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{B6D966F3-E29C-4CF1-A6C9-50347E019C1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6D966F3-E29C-4CF1-A6C9-50347E019C1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6D966F3-E29C-4CF1-A6C9-50347E019C1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50094EA7-0003-4090-BE7C-CA0637982C57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50094EA7-0003-4090-BE7C-CA0637982C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50094EA7-0003-4090-BE7C-CA0637982C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50094EA7-0003-4090-BE7C-CA0637982C57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A87B087C-3C01-49B3-9967-C6AF99148B7F} = {CF72C185-EF66-4871-B990-CD53F32D4B49}

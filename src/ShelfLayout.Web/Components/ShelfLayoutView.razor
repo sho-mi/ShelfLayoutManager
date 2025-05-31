@@ -1,0 +1,404 @@
+@page "/"
+@namespace ShelfLayout.Web.Components
+@using ShelfLayout.Core.Entities
+@using ShelfLayout.Core.Interfaces
+@using ShelfLayout.Web.Services
+@using Microsoft.Extensions.Logging
+@implements IAsyncDisposable
+
+@inject ShelfLayout.Web.Services.ShelfLayoutService ShelfLayoutService
+@inject ISkuRepository SkuRepository
+@inject ShelfLayout.Web.Services.ShelfLayoutHubService HubService
+@inject ILogger<ShelfLayoutView> _logger
+@inject IJSRuntime _jsRuntime
+
+<div class="shelf-layout">
+    <div class="cabinet-management">
+        <h2>Cabinet Management</h2>
+        <button class="btn btn-primary" @onclick="ShowAddCabinetForm">Add Cabinet</button>
+    </div>
+
+    @if (_showAddCabinetForm)
+    {
+        <div class="add-cabinet-form">
+            <h3>Add New Cabinet</h3>
+            <div class="form-group">
+                <label for="cabinetNumber">Cabinet Number:</label>
+                <input type="number" id="cabinetNumber" @bind="newCabinet.Number" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Position:</label>
+                <div class="position-inputs">
+                    <input type="number" @bind="newCabinet.Position.X" placeholder="X" class="form-control" />
+                    <input type="number" @bind="newCabinet.Position.Y" placeholder="Y" class="form-control" />
+                </div>
+            </div>
+            <button class="btn btn-primary" @onclick="AddCabinet">Add</button>
+            <button class="btn btn-secondary" @onclick="CancelAddCabinet">Cancel</button>
+        </div>
+    }
+
+    @if (_cabinets != null)
+    {
+        foreach (var cabinet in _cabinets)
+        {
+            <div class="cabinet" style="left: @(cabinet.Position.X)px; top: @(cabinet.Position.Y)px;">
+                <div class="cabinet-header">
+                    <h3>Cabinet @cabinet.Number</h3>
+                    <div class="cabinet-actions">
+                        <button class="btn btn-sm btn-primary" @onclick="() => ShowAddRowForm(cabinet.Number)">Add Row</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteCabinet(cabinet.Number)">Delete</button>
+                    </div>
+                </div>
+
+                @if (_showAddRowForm && _selectedCabinet == cabinet.Number)
+                {
+                    <div class="add-row-form">
+                        <div class="form-group">
+                            <label for="rowNumber">Row Number:</label>
+                            <input type="number" id="rowNumber" @bind="newRow.Number" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="positionZ">Position Z:</label>
+                            <input type="number" id="positionZ" @bind="newRow.PositionZ" class="form-control" />
+                        </div>
+                        <button class="btn btn-primary" @onclick="() => AddRow(cabinet.Number)">Add</button>
+                        <button class="btn btn-secondary" @onclick="CancelAddRow">Cancel</button>
+                    </div>
+                }
+
+                @foreach (var row in cabinet.Rows)
+                {
+                    <div class="row" style="top: @(row.PositionZ)px;">
+                        <div class="row-header">
+                            <h4>Row @row.Number</h4>
+                            <button class="btn btn-sm btn-danger" @onclick="() => RemoveRow(cabinet.Number, row.Number)">Remove</button>
+                        </div>
+                        @foreach (var lane in row.Lanes)
+                        {
+                            <div class="lane" style="left: @(lane.PositionX)px;">
+                                @if (!string.IsNullOrEmpty(lane.JanCode))
+                                {
+                                    var sku = _skuImages.GetValueOrDefault(lane.JanCode);
+                                    if (sku != null)
+                                    {
+                                        <img src="@sku.ImageUrl" alt="@sku.Name" />
+                                        <button @onclick="() => RemoveLane(cabinet.Number, row.Number, lane.Number)">Remove</button>
+                                    }
+                                }
+                                else if (_selectedLane == (cabinet.Number, row.Number, lane.Number))
+                                {
+                                    <div class="sku-form">
+                                        <select @bind="_newSku.JanCode">
+                                            <option value="">Select SKU</option>
+                                            @foreach (var sku in _skuImages.Values)
+                                            {
+                                                <option value="@sku.JanCode">@sku.Name</option>
+                                            }
+                                        </select>
+                                        <button @onclick="() => AddSku(cabinet.Number, row.Number, lane.Number)">Add</button>
+                                        <button @onclick="CancelAddSku">Cancel</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <button @onclick="() => ShowAddSkuForm(cabinet.Number, row.Number, lane.Number)">Add</button>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private List<Cabinet>? _cabinets;
+    private Dictionary<string, Sku> _skuImages = new();
+    private (int CabinetNumber, int RowNumber, int LaneNumber)? _selectedLane;
+    private bool _showAddCabinetForm;
+    private bool _showAddRowForm;
+    private int? _selectedCabinet;
+    private const int MIN_LOAD_INTERVAL_MS = 5000; // 5 seconds
+    private const int MAX_RETRIES = 3;
+    private const int RETRY_DELAY_MS = 2000; // 2 seconds
+    private int _retryCount = 0;
+    private DateTime _lastLoadTime = DateTime.MinValue;
+    private CancellationTokenSource? _refreshCts;
+    private bool _isRefreshing;
+    private readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
+    private Cabinet newCabinet = new()
+    {
+        Number = 1,
+        Position = new Position { X = 0, Y = 0, Z = 0 },
+        Rows = new List<Row>(),
+        Size = new Size { Width = 100, Height = 100, Depth = 100 }
+    };
+    private Row newRow = new()
+    {
+        Number = 1,
+        PositionZ = 0,
+        Lanes = new List<Lane>()
+    };
+    private Sku _newSku = new()
+    {
+        JanCode = "",
+        Name = "",
+        Size = 0,
+        Width = 0,
+        Depth = 0,
+        Height = 0,
+        ShapeType = "Can",
+        ImageUrl = "",
+        TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadData();
+            await LoadSkuImages();
+
+            // Set up hub event handlers
+            HubService.OnShelfLayoutUpdated += async () =>
+            {
+                await RefreshData();
+            };
+
+            HubService.OnSkuUpdated += async () =>
+            {
+                await LoadSkuImages();
+                StateHasChanged();
+            };
+
+            HubService.OnCabinetManagementUpdated += async () =>
+            {
+                await RefreshData();
+            };
+
+            HubService.OnRowRemoved += async (cabinetNumber, rowNumber) =>
+            {
+                await RefreshData();
+            };
+
+            HubService.OnSkuRemoved += async (janCode) =>
+            {
+                await RefreshData();
+            };
+
+            // Initialize hub connection
+            try
+            {
+                await HubService.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to initialize hub connection, continuing without real-time updates");
+                // Continue without real-time updates
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during component initialization");
+            // Handle initialization error
+        }
+    }
+
+    private async Task RefreshData()
+    {
+        if (_isRefreshing)
+        {
+            _logger.LogInformation("Refresh already in progress, skipping");
+            return;
+        }
+
+        try
+        {
+            await _refreshLock.WaitAsync();
+            _isRefreshing = true;
+
+            // Cancel any existing refresh operation
+            _refreshCts?.Cancel();
+            _refreshCts = new CancellationTokenSource();
+
+            _logger.LogInformation("Starting data refresh");
+            await LoadData();
+            _lastLoadTime = DateTime.Now;
+            _retryCount = 0; // Reset retry count on success
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogInformation("Refresh operation was cancelled");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error refreshing data: {Message}", ex.Message);
+            if (_retryCount < MAX_RETRIES)
+            {
+                _retryCount++;
+                var retryDelay = RETRY_DELAY_MS * _retryCount; // Exponential backoff
+                _logger.LogInformation("Retrying in {Delay}ms (attempt {RetryCount} of {MaxRetries})", 
+                    retryDelay, _retryCount, MAX_RETRIES);
+                await Task.Delay(retryDelay, _refreshCts.Token);
+                await RefreshData();
+            }
+            else
+            {
+                _logger.LogError("Max retries reached, giving up");
+                _retryCount = 0;
+                // Show error to user
+                await _jsRuntime.InvokeVoidAsync("alert", "Failed to refresh data after multiple attempts");
+            }
+        }
+        finally
+        {
+            _isRefreshing = false;
+            _refreshLock.Release();
+        }
+    }
+
+    private async Task LoadData()
+    {
+        try
+        {
+            _logger.LogInformation("Loading shelf data");
+            var cabinets = await ShelfLayoutService.GetAllCabinetsAsync();
+            _cabinets = cabinets.ToList();
+            _logger.LogInformation("Successfully loaded {Count} cabinets", _cabinets.Count);
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading data: {Message}", ex.Message);
+            // Show error to user
+            await _jsRuntime.InvokeVoidAsync("alert", $"Error loading data: {ex.Message}");
+        }
+    }
+
+    private async Task LoadSkuImages()
+    {
+        try
+        {
+            var skus = await SkuRepository.GetAllAsync();
+            _skuImages = skus.ToDictionary(s => s.JanCode);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading SKU images: {Message}", ex.Message);
+            // Handle error appropriately
+        }
+    }
+
+    private void ShowAddCabinetForm()
+    {
+        _showAddCabinetForm = true;
+        newCabinet = new Cabinet
+        {
+            Number = _cabinets?.Count + 1 ?? 1,
+            Position = new Position { X = 0, Y = 0, Z = 0 },
+            Rows = new List<Row>(),
+            Size = new Size { Width = 100, Height = 100, Depth = 100 }
+        };
+    }
+
+    private async Task AddCabinet()
+    {
+        await ShelfLayoutService.AddCabinetAsync(newCabinet);
+        _showAddCabinetForm = false;
+    }
+
+    private void CancelAddCabinet()
+    {
+        _showAddCabinetForm = false;
+    }
+
+    private void ShowAddRowForm(int cabinetNumber)
+    {
+        _showAddRowForm = true;
+        _selectedCabinet = cabinetNumber;
+        newRow = new Row
+        {
+            Number = _cabinets?.FirstOrDefault(c => c.Number == cabinetNumber)?.Rows.Count + 1 ?? 1,
+            PositionZ = 0,
+            Lanes = new List<Lane>()
+        };
+    }
+
+    private async Task AddRow(int cabinetNumber)
+    {
+        await ShelfLayoutService.AddRowToCabinetAsync(cabinetNumber, newRow);
+        _showAddRowForm = false;
+        _selectedCabinet = null;
+    }
+
+    private void CancelAddRow()
+    {
+        _showAddRowForm = false;
+        _selectedCabinet = null;
+    }
+
+    private async Task DeleteCabinet(int cabinetNumber)
+    {
+        await ShelfLayoutService.DeleteCabinetAsync(cabinetNumber);
+    }
+
+    private async Task RemoveRow(int cabinetNumber, int rowNumber)
+    {
+        await ShelfLayoutService.RemoveRowFromCabinetAsync(cabinetNumber, rowNumber);
+    }
+
+    private void ShowAddSkuForm(int cabinetNumber, int rowNumber, int laneNumber)
+    {
+        _selectedLane = (cabinetNumber, rowNumber, laneNumber);
+    }
+
+    private async Task AddSku(int cabinetNumber, int rowNumber, int laneNumber)
+    {
+        if (string.IsNullOrEmpty(_newSku.JanCode)) return;
+
+        await ShelfLayoutService.AddSkuToLaneAsync(_newSku.JanCode, cabinetNumber, rowNumber, laneNumber);
+        await HubService.NotifyShelfLayoutUpdatedAsync();
+        _selectedLane = null;
+    }
+
+    private void CancelAddSku()
+    {
+        _selectedLane = null;
+    }
+
+    private async Task RemoveLane(int cabinetNumber, int rowNumber, int laneNumber)
+    {
+        try
+        {
+            var cabinet = _cabinets?.FirstOrDefault(c => c.Number == cabinetNumber);
+            if (cabinet == null) return;
+
+            var row = cabinet.Rows.FirstOrDefault(r => r.Number == rowNumber);
+            if (row == null) return;
+
+            var lane = row.Lanes.FirstOrDefault(l => l.Number == laneNumber);
+            if (lane == null) return;
+
+            await ShelfLayoutService.RemoveSkuAsync(lane.JanCode!, cabinetNumber, rowNumber, laneNumber);
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error removing lane: {ex.Message}");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (HubService != null)
+        {
+            await HubService.DisposeAsync();
+        }
+        _refreshCts?.Cancel();
+        _refreshCts?.Dispose();
+        _refreshLock.Dispose();
+    }
+} 
