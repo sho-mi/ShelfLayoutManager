@@ -1,4 +1,4 @@
-namespace ShelfLayout.Core.Tests;
+namespace ShelfLayout.Server.Tests;
 
 public class UnitTest1
 {

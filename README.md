@@ -1,116 +1,128 @@
-# Shelf Layout Visualization and Modification Tool
+# Shelf Layout Management System
 
-A Blazor WebAssembly application for visualizing and modifying shelf layouts in stores.
+A comprehensive shelf layout management system built with .NET 8, featuring a modern web interface and real-time updates.
 
-## Project Overview
+## Project Architecture
 
-This application allows operations team members to:
-- Visualize shelf layouts in stores
-- Add new SKU drinks to shelves
-- Move existing SKU drinks between positions
-- Remove SKU drinks from shelves
-- Real-time updates across multiple browser tabs/windows
+The solution is structured into several projects:
 
-## Technical Stack
+### Core Projects
+- **ShelfLayout.Core**: Contains the core domain entities, interfaces, and business logic
+  - Entities: `Cabinet`, `Row`, `Lane`, `Sku`
+  - Interfaces: `IShelfRepository`, `ISkuRepository`
+  - Models: `ShelfData`, `CabinetManagementData`
 
-- .NET 8.0
-- Blazor WebAssembly
-- SignalR for real-time communication
-- System.Reactive for reactive programming
-- xUnit for unit testing
-- Clean Architecture principles
+### Infrastructure
+- **ShelfLayout.Infrastructure**: Implements data persistence and external service integrations
+  - `ShelfRepository`: Manages shelf layout data persistence
+  - `SkuRepository`: Handles SKU data management
 
-## Project Structure
+### Server
+- **ShelfLayout.Server**: ASP.NET Core Web API project
+  - RESTful endpoints for shelf layout management
+  - SignalR hub for real-time updates
+  - Controllers: `ShelfLayoutController`, `SkuController`
 
-```
-ShelfLayout/
-├── src/
-│   ├── ShelfLayout.Core/           # Domain entities and interfaces
-│   ├── ShelfLayout.Infrastructure/ # Implementation of interfaces
-│   ├── ShelfLayout.Application/    # Business logic and use cases
-│   └── ShelfLayout.Web/           # Blazor WebAssembly UI
-└── tests/
-    ├── ShelfLayout.Core.Tests/
-    ├── ShelfLayout.Infrastructure.Tests/
-    ├── ShelfLayout.Application.Tests/
-    └── ShelfLayout.Web.Tests/
-```
+### Web Client
+- **ShelfLayout.Web**: Blazor WebAssembly client
+  - Modern UI with real-time updates
+  - Interactive shelf layout management
+  - SKU management interface
 
-## Features
+### Tests
+- **ShelfLayout.Core.Tests**: Unit tests for core domain logic
+- **ShelfLayout.Infrastructure.Tests**: Tests for data persistence
+- **ShelfLayout.Server.Tests**: API and SignalR hub tests
+- **ShelfLayout.Web.Tests**: Client-side tests
 
-### Real-time Updates
-The application uses SignalR to provide real-time updates across multiple browser tabs/windows. When changes are made to the shelf layout:
-- All connected clients are notified immediately
-- The UI is automatically refreshed to reflect the changes
-- No manual refresh is required
+## Prerequisites
 
-### Reactive Programming
-The application implements reactive programming patterns to handle:
-- Real-time data synchronization
-- Automatic UI updates
-- Event-driven architecture
-- Efficient state management
+- .NET 8 SDK
+- Node.js (for web client development)
+- Visual Studio 2022 or VS Code with C# extensions
 
 ## Getting Started
 
-### Prerequisites
-
-- .NET 8.0 SDK
-- Visual Studio 2022 or VS Code with C# extensions
-
-### Running the Application
-
-1. Clone the repository
-2. Navigate to the `src/ShelfLayout.Web` directory
-3. Run the following commands:
-   ```bash
-   dotnet restore
-   dotnet build
-   dotnet run
-   ```
-4. Open your browser and navigate to `https://localhost:5001`
-
-### Running Tests
-
+1. Clone the repository:
 ```bash
-dotnet test
+git clone [repository-url]
+cd ShelfLayout
 ```
 
-## Development Time Breakdown
+2. Restore dependencies:
+```bash
+dotnet restore
+```
 
-- Project Setup and Architecture: -- hours
-- Core Domain Implementation: -- hours
-- Infrastructure Layer: -- hours
-- Application Layer: -- hours
-- UI Implementation: -- hours
-- Real-time Features: -- hours
-- Testing: -- hours
-- Documentation: -- hour
-- Total: ~20 hours
+3. Build the solution:
+```bash
+dotnet build
+```
 
-## Future Improvements
+## Running the Application
 
-### Must Have
-1. Implement proper error handling and logging
-2. Add user authentication and authorization
-3. Implement data persistence with a proper database
-4. Add input validation and error messages
-5. Implement proper state management
-6. Add real-time collaboration features
-7. Implement conflict resolution for concurrent edits
+### Running Tests
+```bash
+# Run all tests
+dotnet test
 
-### Nice to Have
-1. Add drag-and-drop functionality for SKU placement
-2. Add export/import functionality for shelf layouts
-3. Implement undo/redo functionality
-4. Add performance optimizations for large datasets
-5. Implement responsive design for mobile devices
-6. Add analytics and reporting features
-7. Implement offline support with sync capabilities
+# Run specific test project
+dotnet test tests/ShelfLayout.Core.Tests
+dotnet test tests/ShelfLayout.Infrastructure.Tests
+dotnet test tests/ShelfLayout.Server.Tests
+dotnet test tests/ShelfLayout.Web.Tests
+```
+
+### Running the Server
+```bash
+cd src/ShelfLayout.Server
+dotnet run
+```
+The server will be available at `https://localhost:5001` and `http://localhost:5000`
+
+### Running the Web Client
+```bash
+cd src/ShelfLayout.Web
+dotnet run
+```
+The web client will be available at `https://localhost:5002` and `http://localhost:5003`
+
+## Development
+
+### Project Structure
+```
+ShelfLayout/
+├── src/
+│   ├── ShelfLayout.Core/
+│   ├── ShelfLayout.Infrastructure/
+│   ├── ShelfLayout.Server/
+│   └── ShelfLayout.Web/
+├── tests/
+│   ├── ShelfLayout.Core.Tests/
+│   ├── ShelfLayout.Infrastructure.Tests/
+│   ├── ShelfLayout.Server.Tests/
+│   └── ShelfLayout.Web.Tests/
+└── README.md
+```
+
+### Key Features
+- Real-time shelf layout updates using SignalR
+- RESTful API for shelf management
+- Modern Blazor WebAssembly UI
+- Comprehensive test coverage
+- Clean architecture with separation of concerns
+
+## API Documentation
+
+The API documentation is available at `/swagger` when running the server project.
 
 ## Contributing
 
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 

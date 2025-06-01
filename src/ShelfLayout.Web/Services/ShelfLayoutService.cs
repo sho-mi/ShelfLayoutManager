@@ -9,11 +9,11 @@ namespace ShelfLayout.Web.Services;
 public class ShelfLayoutService
 {
     private readonly IShelfRepository _shelfRepository;
-    private readonly ShelfLayoutHubService _hubService;
+    private readonly IShelfLayoutHubService _hubService;
 
     public ShelfLayoutService(
         IShelfRepository shelfRepository, 
-        ShelfLayoutHubService hubService)
+        IShelfLayoutHubService hubService)
     {
         _shelfRepository = shelfRepository;
         _hubService = hubService;

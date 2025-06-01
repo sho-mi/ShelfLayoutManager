@@ -1,6 +1,8 @@
 using ShelfLayout.Infrastructure.Repositories;
 using ShelfLayout.Web;
 using Polly;
+using Microsoft.AspNetCore.SignalR.Client;
+using ShelfLayout.Web.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -28,7 +30,6 @@ builder.Services.AddScoped<IShelfRepository, JsonShelfRepository>();
 
 // Register services
 builder.Services.AddScoped<ShelfLayoutService>();
-builder.Services.AddScoped<ShelfLayoutHubService>();
 
 // Configure SignalR
 builder.Services.AddSingleton<HubConnection>(sp =>
@@ -44,5 +45,8 @@ builder.Services.AddSingleton<HubConnection>(sp =>
         .WithAutomaticReconnect(new[] { TimeSpan.Zero, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(10) })
         .Build();
 });
+
+// Register the hub service
+builder.Services.AddScoped<IShelfLayoutHubService, ShelfLayoutHubService>();
 
 await builder.Build().RunAsync();

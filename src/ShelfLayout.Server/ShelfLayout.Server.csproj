@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\ShelfLayout.Core\ShelfLayout.Core.csproj" />
-    <ProjectReference Include="..\src\ShelfLayout.Infrastructure\ShelfLayout.Infrastructure.csproj" />
+    <ProjectReference Include="../ShelfLayout.Core/ShelfLayout.Core.csproj" />
+    <ProjectReference Include="../ShelfLayout.Infrastructure/ShelfLayout.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

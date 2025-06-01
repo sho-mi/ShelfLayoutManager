@@ -92,8 +92,7 @@ namespace ShelfLayout.Core.Tests
             {
                 Number = 1,
                 Quantity = 5,
-                PositionX = 0,
-                JanCode = "4901234567890"
+                PositionX = 0
             };
             var janCode = "4901234567890";
 
@@ -113,12 +112,11 @@ namespace ShelfLayout.Core.Tests
                 Number = 1,
                 Quantity = 1,
                 PositionX = 0,
-                JanCode = "4901234567890"
+                JanCode = "4901234567890"  // Lane is already occupied with this JanCode
             };
-            lane.JanCode = "4901234567890";
 
             // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => lane.JanCode = "4901234567891");
+            Assert.Throws<InvalidOperationException>(() => lane.JanCode = "4901234567891");  // Try to add a different JanCode
         }
     }
 } 
