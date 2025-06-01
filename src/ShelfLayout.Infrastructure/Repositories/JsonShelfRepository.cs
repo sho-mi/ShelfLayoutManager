@@ -1,17 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using ShelfLayout.Core.Entities;
 using ShelfLayout.Core.Interfaces;
 using ShelfLayout.Core.Models;
-using System.Net.Http;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Http;
 
 namespace ShelfLayout.Infrastructure.Repositories
 {

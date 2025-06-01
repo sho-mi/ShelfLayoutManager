@@ -1,5 +1,8 @@
 using ShelfLayout.Core.Entities;
 using ShelfLayout.Core.Interfaces;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace ShelfLayout.Web.Services;
 
@@ -25,7 +28,7 @@ public class ShelfLayoutService
         return cabinets.ToList();
     }
 
-    public async Task AddSkuToLaneAsync(string janCode, int cabinetNumber, int rowNumber, int laneNumber)
+    public async Task AddSkuToLaneAsync(string janCode, int cabinetNumber, int rowNumber, int laneNumber, int quantity = 1)
     {
         var cabinet = await _shelfRepository.GetCabinetByNumberAsync(cabinetNumber);
         if (cabinet == null) return;
@@ -37,9 +40,12 @@ public class ShelfLayoutService
         if (lane == null) return;
 
         lane.JanCode = janCode;
-        lane.Quantity = 1;
+        lane.Quantity = quantity;
+        lane.CabinetNumber = cabinetNumber;
+        lane.RowNumber = rowNumber;
 
         await _shelfRepository.UpdateCabinetAsync(cabinet);
+        await _hubService.NotifyShelfLayoutUpdatedAsync();
     }
 
     public async Task RemoveSkuAsync(string janCode, int cabinetNumber, int rowNumber, int laneNumber)
@@ -55,6 +61,8 @@ public class ShelfLayoutService
 
         lane.JanCode = null;
         lane.Quantity = 0;
+        lane.CabinetNumber = cabinetNumber;
+        lane.RowNumber = rowNumber;
 
         await _shelfRepository.UpdateCabinetAsync(cabinet);
         await _hubService.NotifySkuRemovedAsync(janCode);

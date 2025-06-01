@@ -218,9 +218,9 @@
     border-radius: 16px;
     margin: 20px 0;
     position: relative;
-    width: 100%;
+    width: 95%;
     max-width: 2600px;
-    min-width: 900px;
+    min-width: 780px;
     background: #fff;
 }
 .cabinet-label {
@@ -240,7 +240,7 @@
     padding: 28px 0 16px 0;
     position: relative;
     background: #fff;
-    min-width: 800px;
+    min-width: 750px;
     max-width: 2400px;
     width: 100%;
 }
@@ -342,7 +342,7 @@
     margin-bottom: 0;
     margin-top: 4px;
     font-size: 0.7rem;
-    width: 80%;
+    width: 100%;
     padding: 2px 0;
 }
 

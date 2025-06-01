@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace ShelfLayout.Web.Services;
 
@@ -17,6 +19,8 @@ public class ShelfLayoutHubService : IAsyncDisposable
     public event Func<Task>? OnCabinetManagementUpdated;
     public event Func<int, int, Task>? OnRowRemoved;
     public event Func<string, Task>? OnSkuRemoved;
+    public event Func<int, int, int, Task>? OnLaneRemoved;
+    public event Func<int, int, int, Task>? OnLaneAdded;
 
     public ShelfLayoutHubService(IJSRuntime jsRuntime, IConfiguration configuration, ILogger<ShelfLayoutHubService> logger)
     {
@@ -83,6 +87,22 @@ public class ShelfLayoutHubService : IAsyncDisposable
                     if (OnSkuRemoved != null)
                     {
                         await OnSkuRemoved(janCode);
+                    }
+                });
+
+                _hubConnection.On<int, int, int>("OnLaneRemoved", async (cabinetNumber, rowNumber, laneNumber) =>
+                {
+                    if (OnLaneRemoved != null)
+                    {
+                        await OnLaneRemoved(cabinetNumber, rowNumber, laneNumber);
+                    }
+                });
+
+                _hubConnection.On<int, int, int>("OnLaneAdded", async (cabinetNumber, rowNumber, laneNumber) =>
+                {
+                    if (OnLaneAdded != null)
+                    {
+                        await OnLaneAdded(cabinetNumber, rowNumber, laneNumber);
                     }
                 });
             }
@@ -162,6 +182,22 @@ public class ShelfLayoutHubService : IAsyncDisposable
         if (_hubConnection?.State == HubConnectionState.Connected)
         {
             await _hubConnection.SendAsync("NotifySkuRemoved", janCode);
+        }
+    }
+
+    public async Task NotifyLaneRemovedAsync(int cabinetNumber, int rowNumber, int laneNumber)
+    {
+        if (_hubConnection?.State == HubConnectionState.Connected)
+        {
+            await _hubConnection.SendAsync("NotifyLaneRemoved", cabinetNumber, rowNumber, laneNumber);
+        }
+    }
+
+    public async Task NotifyLaneAddedAsync(int cabinetNumber, int rowNumber, int laneNumber)
+    {
+        if (_hubConnection?.State == HubConnectionState.Connected)
+        {
+            await _hubConnection.SendAsync("NotifyLaneAdded", cabinetNumber, rowNumber, laneNumber);
         }
     }
 

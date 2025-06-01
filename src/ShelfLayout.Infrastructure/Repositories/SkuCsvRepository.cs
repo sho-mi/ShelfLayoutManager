@@ -3,11 +3,8 @@ using CsvHelper.Configuration;
 using System.Globalization;
 using ShelfLayout.Core.Entities;
 using ShelfLayout.Core.Interfaces;
-using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Http;
-using System.Net.Http.Json;
 
 namespace ShelfLayout.Infrastructure.Repositories
 {
@@ -45,7 +42,7 @@ namespace ShelfLayout.Infrastructure.Repositories
             try
             {
                 // Try to get from cache first if available
-                if (_cache != null && _cache.TryGetValue(CACHE_KEY, out List<Sku>? cachedSkus) && cachedSkus != null)
+                if (_cache.TryGetValue(CACHE_KEY, out List<Sku>? cachedSkus) && cachedSkus != null)
                 {
                     _logger.LogInformation("Returning SKU data from cache");
                     _skus = cachedSkus;
@@ -74,14 +71,10 @@ namespace ShelfLayout.Infrastructure.Repositories
 
                 _skus = csv.GetRecords<Sku>().ToList();
                 _logger.LogInformation("Successfully loaded {Count} SKUs", _skus.Count);
-
-                // Cache the data if cache is available
-                if (_cache != null)
-                {
-                    var cacheOptions = new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(CACHE_DURATION_SECONDS));
-                    _cache.Set(CACHE_KEY, _skus, cacheOptions);
-                }
+                
+                var cacheOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(CACHE_DURATION_SECONDS));
+                _cache.Set(CACHE_KEY, _skus, cacheOptions);
             }
             catch (Exception ex)
             {
@@ -165,18 +158,5 @@ namespace ShelfLayout.Infrastructure.Repositories
                 await SaveDataAsync();
             }
         }
-    }
-
-    public class SkuCsvRecord
-    {
-        public string JanCode { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string X { get; set; } = string.Empty;
-        public string Y { get; set; } = string.Empty;
-        public string Z { get; set; } = string.Empty;
-        public string ImageUrl { get; set; } = string.Empty;
-        public int Size { get; set; }
-        public string TimeStamp { get; set; } = string.Empty;
-        public string Shape { get; set; } = string.Empty;
     }
 } 
