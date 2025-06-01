@@ -2,14 +2,8 @@ using Microsoft.AspNetCore.ResponseCompression;
 using ShelfLayout.Core.Interfaces;
 using ShelfLayout.Infrastructure.Repositories;
 using ShelfLayout.Server.Hubs;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using ShelfLayout.Server.Controllers;
 using Serilog;
 using Serilog.Events;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);

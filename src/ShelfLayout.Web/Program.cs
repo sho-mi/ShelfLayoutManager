@@ -1,16 +1,6 @@
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.Logging;
 using ShelfLayout.Infrastructure.Repositories;
-using ShelfLayout.Core.Interfaces;
-using ShelfLayout.Web.Services;
 using ShelfLayout.Web;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http;
 using Polly;
-using Polly.Extensions.Http;
-using Microsoft.Extensions.Caching.Memory;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
