@@ -45,7 +45,7 @@ The solution is structured into several projects:
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
+git clone https://github.com/sho-mi/ShelfLayoutManager.git
 cd ShelfLayout
 ```
 
@@ -112,9 +112,6 @@ ShelfLayout/
 - Comprehensive test coverage
 - Clean architecture with separation of concerns
 
-## API Documentation
-
-The API documentation is available at `/swagger` when running the server project.
 
 ## Contributing
 
