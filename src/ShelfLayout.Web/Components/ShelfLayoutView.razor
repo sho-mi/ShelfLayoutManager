@@ -141,7 +141,7 @@
 
     @if (_selectedLane.HasValue)
     {
-        <div class="add-sku-form">
+        <div class="add-sku-form" @ref="addSkuFormRef">
             <h3>Add SKU to Lane</h3>
             <div class="form-group">
                 <label for="janCode">JAN Code:</label>
@@ -233,6 +233,7 @@
         TimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
     };
     private int currentCabinetIndex = 0;
+    private ElementReference addSkuFormRef;
 
     protected override async Task OnInitializedAsync()
     {
@@ -399,7 +400,7 @@
     {
         await ShelfLayoutService.AddCabinetAsync(newCabinet);
         _showAddCabinetForm = false;
-        await RefreshData(); // Refresh the data after adding a new cabinet
+        await RefreshData();
     }
 
     private void CancelAddCabinet()
@@ -442,9 +443,31 @@
         await ShelfLayoutService.RemoveRowFromCabinetAsync(cabinetNumber, rowNumber);
     }
 
-    private void ShowAddSkuForm(int cabinetNumber, int rowNumber, int laneNumber)
+    private async Task ShowAddSkuForm(int cabinetNumber, int rowNumber, int laneNumber)
     {
         _selectedLane = (cabinetNumber, rowNumber, laneNumber);
+        await Task.Delay(100); // Small delay to ensure the form is rendered
+        try
+        {
+            await ScrollToAddSkuForm();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error scrolling to form: {Message}", ex.Message);
+        }
+    }
+
+    private async Task ScrollToAddSkuForm()
+    {
+        try
+        {
+            await _jsRuntime.InvokeVoidAsync("scrollToElement", addSkuFormRef);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in ScrollToAddSkuForm: {Message}", ex.Message);
+            throw;
+        }
     }
 
     private async Task AddSku(int cabinetNumber, int rowNumber, int laneNumber)

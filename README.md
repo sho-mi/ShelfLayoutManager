@@ -12,6 +12,12 @@ The solution is structured into several projects:
   - Interfaces: `IShelfRepository`, `ISkuRepository`
   - Models: `ShelfData`, `CabinetManagementData`
 
+### Application Layer
+- **ShelfLayout.Application**: Contains application services and business logic implementation
+  - `ShelfLayoutService`: Implements shelf layout management business logic
+  - `SkuService`: Handles SKU-related business operations
+  - DTOs and mapping logic for data transfer
+
 ### Infrastructure
 - **ShelfLayout.Infrastructure**: Implements data persistence and external service integrations
   - `ShelfRepository`: Manages shelf layout data persistence
@@ -31,6 +37,7 @@ The solution is structured into several projects:
 
 ### Tests
 - **ShelfLayout.Core.Tests**: Unit tests for core domain logic
+- **ShelfLayout.Application.Tests**: Tests for application services
 - **ShelfLayout.Infrastructure.Tests**: Tests for data persistence
 - **ShelfLayout.Server.Tests**: API and SignalR hub tests
 - **ShelfLayout.Web.Tests**: Client-side tests
@@ -68,6 +75,7 @@ dotnet test
 
 # Run specific test project
 dotnet test tests/ShelfLayout.Core.Tests
+dotnet test tests/ShelfLayout.Application.Tests
 dotnet test tests/ShelfLayout.Infrastructure.Tests
 dotnet test tests/ShelfLayout.Server.Tests
 dotnet test tests/ShelfLayout.Web.Tests
@@ -94,11 +102,13 @@ The web client will be available at `http://localhost:5120`
 ShelfLayout/
 ├── src/
 │   ├── ShelfLayout.Core/
+│   ├── ShelfLayout.Application/
 │   ├── ShelfLayout.Infrastructure/
 │   ├── ShelfLayout.Server/
 │   └── ShelfLayout.Web/
 ├── tests/
 │   ├── ShelfLayout.Core.Tests/
+│   ├── ShelfLayout.Application.Tests/
 │   ├── ShelfLayout.Infrastructure.Tests/
 │   ├── ShelfLayout.Server.Tests/
 │   └── ShelfLayout.Web.Tests/
@@ -109,8 +119,9 @@ ShelfLayout/
 - Real-time shelf layout updates using SignalR
 - RESTful API for shelf management
 - Modern Blazor WebAssembly UI
-- Comprehensive test coverage
 - Clean architecture with separation of concerns
+- Application layer for business logic implementation
+- Comprehensive test coverage
 
 ### Application Flow
 - Once the user accesses the application, Homepage shows the Cabinet Management Tool, using which users can add new cabinets, remove rows, add and remove various SKU's. Frontend of the Cabinet Management Tool looks like - 
@@ -141,7 +152,7 @@ SKU Management Section -
 - Total: ~18 hours
 
 ## Future Improvements
--
+- 
 - 
 
 ## License
