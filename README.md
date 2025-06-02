@@ -78,14 +78,14 @@ dotnet test tests/ShelfLayout.Web.Tests
 cd src/ShelfLayout.Server
 dotnet run
 ```
-The server will be available at `https://localhost:5001` and `http://localhost:5000`
+The server will be available at `https://localhost:5237` and `http://localhost:5236`
 
 ### Running the Web Client
 ```bash
 cd src/ShelfLayout.Web
 dotnet run
 ```
-The web client will be available at `https://localhost:5002` and `http://localhost:5003`
+The web client will be available at `http://localhost:5120`
 
 ## Development
 
@@ -111,6 +111,22 @@ ShelfLayout/
 - Modern Blazor WebAssembly UI
 - Comprehensive test coverage
 - Clean architecture with separation of concerns
+
+### Application Flow
+- Once the user accesses the application, Homepage shows the Cabinet Management Tool, using which users can add new cabinets, remove rows, add and remove various SKU's. Frontend of the Cabinet Management Tool looks like - 
+![image](https://github.com/user-attachments/assets/af12d9ef-67e1-4bf8-b65e-7eef21e089f6)
+
+- Once the user removes a SKU, he/she gets an option to add another SKU to the same lane and once he/she clicks on Add SKU button, visible for a particular lane, Add SKU to Lane form is opened just below the cabinet.
+<img width="1242" alt="Screenshot 2568-06-02 at 12 12 25" src="https://github.com/user-attachments/assets/d51155ce-7a8f-4426-b47c-4fad01775be6" />
+
+- We also have a separate SKU Management Tool, using which we can add new SKU's and manage existing SKU's. Images depicting the functionalities, as they appear on the frontend -
+
+Add SKU form -
+<img width="1257" alt="Screenshot 2568-06-02 at 12 12 51" src="https://github.com/user-attachments/assets/803232ac-f6e0-488d-84b8-ab75071120b1" />
+
+SKU Management Section -
+<img width="1265" alt="Screenshot 2568-06-02 at 12 13 00" src="https://github.com/user-attachments/assets/35fe57ac-dee5-4217-b70d-d9f75b4d859c" />
+
 
 
 ## Development Time BreakdownAdd commentMore actions
