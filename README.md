@@ -121,7 +121,7 @@ ShelfLayout/
 
 - We also have a separate SKU Management Tool, using which we can add new SKU's and manage existing SKU's. Images depicting the functionalities, as they appear on the frontend -
 
-Add SKU form -
+Add New SKU form -
 <img width="1257" alt="Screenshot 2568-06-02 at 12 12 51" src="https://github.com/user-attachments/assets/803232ac-f6e0-488d-84b8-ab75071120b1" />
 
 SKU Management Section -
