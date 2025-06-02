@@ -152,8 +152,13 @@ SKU Management Section -
 - Total: ~18 hours
 
 ## Future Improvements
-- 
-- 
+- **Dimension Validation Rules**: Introduce rules to validate SKU dimensions (width, depth, height) to ensure compatibility with designated lanes. Similar validation should be applied to lanes and rows to maintain layout integrity.
+
+- **Add Row Functionality**: Currently, only the row removal feature is available. Implement the ability to add new rows to enhance layout flexibility.
+
+- **Store Layout Visualization**: Develop a feature to visualize the overall store layout, including the placement of various cabinets, to provide a clearer spatial representation.
+
+- **Drag-and-Drop Interface**: Implement a drag-and-drop interface to simplify cabinet design and arrangement, making the layout process more intuitive and user-friendly.
 
 ## License
 
